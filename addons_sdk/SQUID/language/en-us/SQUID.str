@@ -1,0 +1,2 @@
+LABEL_SERVICE_SQUID_INFO::::<b>Squid Proxy Cache</b>. Runs a caching HTTP and FTP proxy on port 3128.
+PROMPT_SQUID_ALLOWED_HOSTS::::Allow access from these IP addresses (leave blank for local networks):

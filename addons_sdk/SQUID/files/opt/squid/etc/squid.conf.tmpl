@@ -1,0 +1,108 @@
+
+acl all src all
+acl manager proto cache_object
+acl localhost src 127.0.0.1/32
+acl to_localhost dst 127.0.0.0/8
+acl localnet src 10.0.0.0/8	# RFC1918 possible internal network
+acl localnet src 172.16.0.0/12	# RFC1918 possible internal network
+acl localnet src 192.168.0.0/16	# RFC1918 possible internal network
+acl SSL_ports port 443
+acl Safe_ports port 80		# http
+acl Safe_ports port 21		# ftp
+acl Safe_ports port 443		# https
+acl Safe_ports port 70		# gopher
+acl Safe_ports port 210		# wais
+acl Safe_ports port 1025-65535	# unregistered ports
+acl Safe_ports port 280		# http-mgmt
+acl Safe_ports port 488		# gss-http
+acl Safe_ports port 591		# filemaker
+acl Safe_ports port 777		# multiling http
+acl CONNECT method CONNECT
+
+# Only allow cachemgr access from localhost
+http_access allow manager localhost
+http_access deny manager
+# Deny requests to unknown ports
+http_access deny !Safe_ports
+# Deny CONNECT to other than SSL ports
+http_access deny CONNECT !SSL_ports
+http_access deny to_localhost
+acl allowed_hosts src ALLOWED_HOSTS
+http_access allow allowed_hosts
+http_access deny all
+
+http_port 3128 http11
+icp_port 0
+cache_mem 32 MB
+maximum_object_size_in_memory 8 KB
+memory_replacement_policy heap LRU
+cache_replacement_policy heap LRU
+cache_dir aufs /c/squid/cache 1000 16 256
+max_open_disk_fds 8
+maximum_object_size 100 MB
+cache_store_log none
+logfile_rotate 7
+pid_filename /var/run/squid.pid
+strip_query_terms off
+buffered_logs on
+ftp_list_width 48
+ftp_passive on
+max_stale 1 day
+
+refresh_pattern ^ftp:		1440	20%	10080
+refresh_pattern ^gopher:	1440	0%	1440
+refresh_pattern -i (/cgi-bin/|\?) 0	0%	0
+refresh_pattern .		0	20%	4320
+
+quick_abort_min 16 KB
+quick_abort_max 128 KB
+quick_abort_pct 75
+
+read_ahead_gap 32 KB
+
+negative_ttl 30 seconds
+negative_dns_ttl 5 seconds
+
+range_offset_limit 256 KB
+
+minimum_expiry_time 10 seconds
+
+request_header_max_size 48 KB
+reply_header_max_size 48 KB
+
+acl apache rep_header Server ^Apache
+broken_vary_encoding allow apache
+request_entities on
+
+relaxed_header_parser warn
+
+server_http11 on
+ignore_expect_100 on
+
+forward_timeout 2 minutes
+connect_timeout 30 seconds
+read_timeout 15 minutes
+request_timeout 5 minutes
+persistent_request_timeout 5 minutes
+client_lifetime 1 day
+half_closed_clients on
+pconn_timeout 5 minutes
+shutdown_lifetime 2 seconds
+
+# cache_mgr webmaster
+# mail_program mail
+
+dns_testnames readynas.com
+# append_domain .yourdomain.com
+forwarded_for off
+maximum_single_addr_tries 2
+retry_on_error on
+uri_whitespace strip
+
+coredump_dir /c/squid/
+# chroot off
+
+pipeline_prefetch on
+
+high_page_fault_warning 3
+

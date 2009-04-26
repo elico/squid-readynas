@@ -1,0 +1,3 @@
+
+# rotate squid logs
+00 0 * * *	root pidof squid &> /dev/null && /opt/squid/sbin/squid -k rotate

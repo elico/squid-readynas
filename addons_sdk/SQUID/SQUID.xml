@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<addon>
+  <name>SQUID</name>
+  <friendly_name>Squid Caching Proxy</friendly_name>
+  <version>2.7_1</version>
+  <get_url>SQUID_HANDLER.pl</get_url>
+  <set_url>SQUID_HANDLER.pl</set_url>
+  <preaction>SQUID_preaction</preaction>
+  <onloadaction>SQUID_onloadaction</onloadaction>
+</addon>
+

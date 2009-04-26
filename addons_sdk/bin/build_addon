@@ -1,0 +1,58 @@
+#!/bin/bash
+
+error() {
+  echo "ERROR!"
+  exit 1;
+}
+
+if echo $MACHTYPE | grep -q sparc; then
+  arch="nsp"
+  bs=512
+elif echo $MACHTYPE | grep -q i.86; then
+  arch="x86"
+  bs=16384
+else
+  echo "Unknown host machine type.  This kit will only work on ReadyNAS Padre or x86 platforms."
+  exit 1
+fi
+if ! [ -d "../bin" -a -d "../template" -a -d "files" ]; then
+  echo "This doesn't appear to be a valid Addon SDK base directory."
+  exit 1
+fi
+
+file=$(ls *.xml | head -1)
+TAG=$(../bin/xmlutil.$arch $file /addon/name | awk -F'!!' '{ print $2 }')
+FRIENDLY_NAME=$(../bin/xmlutil.$arch $file /addon/friendly_name | awk -F'!!' '{ print $2 }')
+NAME=$(echo $FRIENDLY_NAME | sed 's/ //g')
+VERS=$(../bin/xmlutil.$arch $file /addon/version | awk -F'!!' '{ print $2 }')
+START=/etc/frontview/addons/bin/$TAG/start.sh
+STOP=/etc/frontview/addons/bin/$TAG/stop.sh
+TIME=$(date +%s)
+echo "$TAG!!$FRIENDLY_NAME!!$VERS!!$START!!$STOP!!Other" > addons.conf
+
+for file in language/*/*; do 
+  cp $file files/etc/frontview/addons/ui/${TAG}/$file
+done
+cp ${TAG}.html ${TAG}.js ${TAG}.xml ${TAG}_HANDLER.pl files/etc/frontview/addons/ui/${TAG}/
+chmod +x files/etc/frontview/addons/ui/${TAG}/${TAG}_HANDLER.pl
+cp start.sh stop.sh running.sh files/etc/frontview/addons/bin/${TAG}/
+(cd files/etc/frontview/addons/bin/${TAG}/; chmod +x start.sh stop.sh running.sh)
+
+if [ -f ${TAG}_service ]; then
+  cp ${TAG}_service files/etc/frontview/addons/bin/${TAG}/
+  chmod +x files/etc/frontview/addons/bin/${TAG}/${TAG}_service
+fi
+  
+cp ${TAG}.conf files/etc/frontview/apache/addons/${TAG}.conf
+
+cd files || error 
+tar cfz ../files.tgz ./* || error
+cd ..
+tar cf ${NAME}_${VERS}.tar install.sh remove.sh addons.conf files.tgz || error
+
+SIZE=`stat -t ${NAME}_${VERS}.tar | awk '{ print $2 }'`
+MD5=`md5sum ${NAME}_${VERS}.tar | awk '{ print $1 }'`
+echo "addon::name=${FRIENDLY_NAME},version=${VERS},time=${TIME},size=${SIZE},md5sum=${MD5},unencrypted=1,skipreboot=1,api=1,arch=$arch" | dd conv=sync bs=$bs >index 2>/dev/null || error
+cat index ${NAME}_${VERS}.tar >${NAME}_${VERS}.bin || error
+rm -f index ${NAME}_${VERS}.tar files.tgz
+echo "Successfully built \"$FRIENDLY_NAME\" add-on package as \"${NAME}_${VERS}.bin\"."
