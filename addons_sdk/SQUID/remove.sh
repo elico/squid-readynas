@@ -4,7 +4,6 @@ SERVICE=SQUID
 CONF_FILES=""
 PROG_FILES="/etc/frontview/apache/addons/SQUID.conf* \
             /etc/frontview/addons/*/SQUID \
-            /etc/cron.d/squid_rotate \
 			/opt/squid \
 			/c/squid"
 
