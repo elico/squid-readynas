@@ -2,7 +2,7 @@
 <addon>
   <name>SQUID</name>
   <friendly_name>Squid</friendly_name>
-  <version>2.7_1</version>
+  <version>2.7_2</version>
   <get_url>SQUID_HANDLER.pl</get_url>
   <set_url>SQUID_HANDLER.pl</set_url>
   <preaction>SQUID_preaction</preaction>
