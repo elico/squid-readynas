@@ -2,7 +2,7 @@ ROOT = /opt/squid
 SQUID_VERSION = 2.7.STABLE6
 PACKAGE_NAME = SquidCachingProxy
 PACKAGE_SHORTNAME = SQUID
-PACKAGE_VERSION = 2.7_1
+PACKAGE_VERSION = 2.7_2
 
 FETCH = $(shell which wget)
 PATCH = $(shell which patch)
